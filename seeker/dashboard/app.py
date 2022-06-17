@@ -16,13 +16,14 @@ st.title("Seeker")
 st.write("Select a project or upload a new one.")
 
 # UPLOAD PROJECT
-project_conf = st.selectbox(
+selector_project = st.selectbox(
     label="Select project",
-    options=["Select a project", *load_all_config()],
-    format_func=lambda opt: opt.name if isinstance(opt, ProjectConfig) else opt,
+    options=["Select a project", *[c.name for c in load_all_config()]],
+    # format_func=lambda opt: opt.name if isinstance(opt, ProjectConfig) else opt,
 )
 
-if isinstance(project_conf, ProjectConfig):
+if selector_project != "Select project":
+    project_conf = ProjectConfig(name=selector_project)
     with st.sidebar:
         st.write(f"Name: {project_conf.name}")
         st.write(f"Type: text")  # TODO
@@ -78,7 +79,7 @@ if st.session_state["new_project"]:
 else:
     ph.empty()
 
-search_input = st.slider(label='Search for num:')
+# search_input = st.slider(label='Search for num:')
 
 # from seeker.search.numerical.preprocess import preprocess_numeric_data, read_numeric_data, search_numeric
 
