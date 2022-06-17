@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class ProjectConfig:
     def __init__(self, name=str):
         self.name = name.strip()
-        self.id = md5(name).hexdigest()
+        self.id = md5(name.encode()).hexdigest()
         self.data_dir = PROJECT_DIR / f"{self.id}"
         self.data_dir.mkdir(exist_ok=True)
 
