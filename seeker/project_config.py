@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 from seeker.namings import PROJECT_DIR
 import yaml
+from hashlib import md5
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
 class ProjectConfig:
     def __init__(self, name=str):
         self.name = name.strip()
-        self.id = hash(name)
+        self.id = md5(name).hexdigest()
         self.data_dir = PROJECT_DIR / f"{self.id}"
         self.data_dir.mkdir(exist_ok=True)
 
