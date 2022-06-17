@@ -29,6 +29,8 @@ if selector_project != "Select project":
         st.write(f"Type: text")  # TODO
         st.write(f"Files: XY")  # TODO
         st.write(f"Size: X MB")  # TODO
+else:
+    project_conf = None
 
 _, col2, _, col4, _ = st.columns(5)
 
@@ -79,17 +81,15 @@ if st.session_state["new_project"]:
 else:
     ph.empty()
 
-# search_input = st.slider(label='Search for num:')
-
-# from seeker.search.numerical.preprocess import preprocess_numeric_data, read_numeric_data, search_numeric
-
-if isinstance(project_conf, ProjectConfig):
-    st.write(project_conf.name)
-    st.write(project_conf.data_dir)
-    # data = read_numeric_data(project_conf)
-    # st.write(data)
-    # tree = preprocess_numeric_data()
-
+if project_conf is not None:
+    from seeker.search.numerical.preprocess import preprocess_numeric_data, read_numeric_data, search_numeric
+    search_input = st.slider(label='Search for num:')
+    data = read_numeric_data(project_conf)
+    data.shape
+    tree = preprocess_numeric_data(data)
+    tree
+    dist, ind = search_numeric(tree, [search_input, search_input, search_input])
+    ind
     # with st.container():
     #     st.header('text1')
     #     st.write('1')
