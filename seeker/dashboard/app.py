@@ -64,7 +64,7 @@ if st.session_state["new_project"]:
         )
 
         if btn_submit:
-            if project_name:
+            if project_name != '' and project_name is not None:
                 conf = ProjectConfig(name=project_name)
                 conf.save_config()
             if uploaded_files is not None:
@@ -80,13 +80,13 @@ else:
 
 search_input = st.slider(label='Search for num:')
 
-from seeker.search.numerical.preprocess import preprocess_numeric_data, read_numeric_data, search_numeric
+# from seeker.search.numerical.preprocess import preprocess_numeric_data, read_numeric_data, search_numeric
 
 if isinstance(project_conf, ProjectConfig):
     st.write(project_conf.name)
     st.write(project_conf.data_dir)
-    data = read_numeric_data(project_conf)
-    st.write(data)
+    # data = read_numeric_data(project_conf)
+    # st.write(data)
     # tree = preprocess_numeric_data()
 
     # with st.container():
