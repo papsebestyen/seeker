@@ -1,6 +1,6 @@
 import streamlit as st
 from seeker.project_config import ProjectConfig, load_all_config
-from seeker.search.numerical.preprocess import NumericModel
+from seeker.search.numeric import NumericModel
 
 st.set_page_config(
     page_title="Seeker",
@@ -48,6 +48,7 @@ def sidebar_new_project():
                     [(model.conf.data_dir / fp.name) for fp in uploaded_files]
                 )
             )
+            model.build_tree()
 
         st.session_state["app_state"] = "select_project"
         st.session_state["project"] = project_name
@@ -97,17 +98,18 @@ def content_text():
     st.text_area(
         label="Text to search",
         key="query_search",
-        value="""
-        10 20 50
-        """,
+        value="10 20 50",
     )
 
-    # TODO Do search here
+    project_name = st.session_state["project"]
+    conf = ProjectConfig.from_name(name=project_name)
+    model = NumericModel(conf=conf)
+    result_fnames = model.search(query=st.session_state["query_search"])
 
-    for results in [1, 2, 3, 4]:
+    for fname in result_fnames:
         with st.container():
-            st.caption(results)
-            st.text(f"Text: {results}")
+            st.caption(fname)
+            st.text((model.conf.data_dir / fname).read_text())
 
 
 def content_image():
@@ -132,7 +134,8 @@ def main():
         # st.write(st.session_state["query_search"])
 
     st.title("Seeker content")
-    content_pages["text"]()
+    if st.session_state["project"] != DEFAULT_PROJECT:
+        content_pages["text"]()
 
 
 # if project_conf is not None:

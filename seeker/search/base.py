@@ -1,9 +1,7 @@
 import pickle
 from typing import TYPE_CHECKING, List
-from pyparsing import col
 from sklearn.neighbors import KDTree
-import numpy as np
-from abc import ABC, abstractmethod, abstractstaticmethod
+from abc import ABC, abstractstaticmethod
 import pandas as pd
 
 if TYPE_CHECKING:
@@ -18,7 +16,7 @@ DEFAULT_INDEX = "filename"
 
 
 class BaseModel(ABC):
-    SEARCH_DIST = 'euclidean'
+    SEARCH_DIST = "euclidean"
 
     def __init__(self, conf: "ProjectConfig") -> None:
         self.conf = conf
@@ -41,7 +39,7 @@ class BaseModel(ABC):
         vector_path = self.conf.data_dir / "vectors.parquet"
         if vector_path.exists():
             return pd.read_parquet(
-                vector_path, columns=DEFAULT_INDEX if fname_only else None
+                vector_path, columns=[DEFAULT_INDEX] if fname_only else None
             )
         else:
             return pd.DataFrame(columns=[DEFAULT_INDEX])
@@ -66,34 +64,13 @@ class BaseModel(ABC):
 
     def build_tree(self):
         vectors = self.load_vectors()
-        tree = KDTree(vectors.drop(columns=[DEFAULT_INDEX]))
+        tree = KDTree(vectors.drop(columns=[DEFAULT_INDEX]), metric=self.SEARCH_DIST)
         (self.conf.data_dir / "tree.pickle").write_bytes(pickle.dumps(tree))
 
-class NumericModel(BaseModel):
-    @staticmethod
-    def read_file(path: "Path"):
-        return path.read_text()
-
-    @staticmethod
-    def preprocess(data: str):
-        return {
-            "V1": data.split(" ")[0],
-            "V2": data.split(" ")[1],
-            "V3": data.split(" ")[2],
-        }
-
-
-# def build_tree(conf: "ProjectConfig"):
-#     raw_data = [
-#         preprocess_file(file.read_text()) for file in conf.data_dir.rglob("*.txt")
-#     ]
-#     return np.array(raw_data, dtype=np.float64)
-
-
-# def preprocess_numeric_data(data: Iterable) -> KDTree:
-#     tree = KDTree(data, leaf_size=1)
-#     return tree
-
-
-# def search_numeric(tree: KDTree, query: Iterable):
-#     return tree.query(np.array(query).reshape(1, -1), k=10)
+    def search(self, query):
+        tree = pickle.loads((self.conf.data_dir / "tree.pickle").read_bytes())
+        ind = tree.query(
+            pd.DataFrame([self.preprocess(query)]).values, k=10, return_distance=False
+        )
+        vectors = self.load_vectors(fname_only=True)
+        return vectors.iloc[ind[0]][DEFAULT_INDEX].values
