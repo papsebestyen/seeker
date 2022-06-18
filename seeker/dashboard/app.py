@@ -1,6 +1,7 @@
 import streamlit as st
 from seeker.project_config import ProjectConfig, load_all_config
-from seeker.search.numeric import NumericModel #change the import to image or text model
+# from seeker.search.numeric import NumericModel #change the import to image or text model
+from seeker.search.text import TextModel #change the import to image or text model
 
 st.set_page_config(
     page_title="Seeker",
@@ -103,13 +104,13 @@ def content_text():
 
     project_name = st.session_state["project"]
     conf = ProjectConfig.from_name(name=project_name)
-    model = NumericModel(conf=conf) # Change this for image or text model
+    model = TextModel(conf=conf) # Change this for image or text model
     result_fnames = model.search(query=st.session_state["query_search"])
 
     for fname in result_fnames:
         with st.container():
             st.caption(fname)
-            st.text((model.conf.data_dir / fname).read_text())
+            st.text(model.read_file(model.conf.data_dir / fname))
 
 
 def content_image():
@@ -136,17 +137,6 @@ def main():
     st.title("Seeker content")
     if st.session_state["project"] != DEFAULT_PROJECT:
         content_pages["text"]()
-
-
-# if project_conf is not None:
-#     from seeker.search.numerical.preprocess import preprocess_numeric_data, read_numeric_data, search_numeric
-#     search_input = st.slider(label='Search for num:')
-#     data = read_numeric_data(project_conf)
-#     data.shape
-#     tree = preprocess_numeric_data(data)
-#     tree
-#     dist, ind = search_numeric(tree, [search_input, search_input, search_input])
-#     ind
 
 if __name__ == "__main__":
     main()
