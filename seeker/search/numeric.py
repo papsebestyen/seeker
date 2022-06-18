@@ -6,6 +6,8 @@ if TYPE_CHECKING:
 
 
 class NumericModel(BaseModel):
+    SEARCH_DIST = "euclidean"
+
     @staticmethod
     def read_file(path: "Path"):
         return path.read_text()
