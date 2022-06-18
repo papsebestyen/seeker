@@ -1,6 +1,6 @@
 import streamlit as st
 from seeker.project_config import ProjectConfig, load_all_config
-from seeker.search.numeric import NumericModel
+from seeker.search.numeric import NumericModel #change the import to image or text model
 
 st.set_page_config(
     page_title="Seeker",
@@ -103,7 +103,7 @@ def content_text():
 
     project_name = st.session_state["project"]
     conf = ProjectConfig.from_name(name=project_name)
-    model = NumericModel(conf=conf)
+    model = NumericModel(conf=conf) # Change this for image or text model
     result_fnames = model.search(query=st.session_state["query_search"])
 
     for fname in result_fnames:
