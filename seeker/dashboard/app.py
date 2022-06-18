@@ -1,5 +1,6 @@
 import streamlit as st
 from seeker.project_config import ProjectConfig, load_all_config
+from seeker.search.numerical.preprocess import NumericModel
 
 st.set_page_config(
     page_title="Seeker",
@@ -9,6 +10,7 @@ st.set_page_config(
 DEBUG = True
 DEFAULT_PROJECT = "Select project"
 
+
 if "app_state" not in st.session_state:
     st.session_state["app_state"] = "select_project"
 if "project" not in st.session_state:
@@ -17,8 +19,8 @@ if "project_name" not in st.session_state:
     st.session_state["project_name"] = None
 if "project_type" not in st.session_state:
     st.session_state["project_type"] = None
-if "query_search" not in st.session_state:
-    st.session_state["query_search"] = None
+# if "query_search" not in st.session_state:
+#     st.session_state["query_search"] = ""
 
 
 def sidebar_new_project():
@@ -40,6 +42,13 @@ def sidebar_new_project():
         if uploaded_files is not None:
             for file in uploaded_files:
                 (conf.data_dir / file.name).write_bytes(file.getvalue())
+            model = NumericModel(conf=conf)
+            model.extend_vectors(
+                model.preprocess_all(
+                    [(model.conf.data_dir / fp.name) for fp in uploaded_files]
+                )
+            )
+
         st.session_state["app_state"] = "select_project"
         st.session_state["project"] = project_name
 
@@ -85,7 +94,20 @@ def sidebar_select_project():
 
 
 def content_text():
-    st.text_input(label="Text search", key="query_search")
+    st.text_area(
+        label="Text to search",
+        key="query_search",
+        value="""
+        10 20 50
+        """,
+    )
+
+    # TODO Do search here
+
+    for results in [1, 2, 3, 4]:
+        with st.container():
+            st.caption(results)
+            st.text(f"Text: {results}")
 
 
 def content_image():
@@ -102,13 +124,15 @@ def main():
     with st.sidebar:
         sidebar_pages[st.session_state["app_state"]]()
 
-    content_pages["text"]()
-
     if DEBUG:
         st.write(st.session_state["app_state"])
         st.write(st.session_state["project"])
         st.write(st.session_state["project_name"])
         st.write(st.session_state["project_type"])
+        # st.write(st.session_state["query_search"])
+
+    st.title("Seeker content")
+    content_pages["text"]()
 
 
 # if project_conf is not None:

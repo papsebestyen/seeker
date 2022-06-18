@@ -1,7 +1,8 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from seeker.namings import PROJECT_DIR
 import yaml
 from hashlib import md5
+import pandas as pd
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -11,25 +12,35 @@ TYPE_CONF = {
     "image": ["png", "jpg"],
 }
 
+# BIG_MODEL = ...
+
+# class TextModel:
+
+#     def preproc(self, objs):
+#         BIG_MODEL.predict(obj)
+#         ...
 
 class ProjectConfig:
     def __init__(self, name: str, dtype: str):
         self.name = name.strip()
-        self.id = md5(name.encode()).hexdigest()
+        self.id = self.get_id(name)
         self.dtype = dtype
         self.data_dir = PROJECT_DIR / f"{self.id}"
         self.data_dir.mkdir(exist_ok=True)
+        # self.save_config() #TODO
+
+    @staticmethod
+    def get_id(name):
+        return md5(name.encode()).hexdigest()
+
+    def get_files(self) -> List["Path"]:
+        files = []
+        for dtype in TYPE_CONF[self.dtype]:
+            files.extend([f for f in self.data_dir.glob(f"*.{dtype}")])
+        return files
 
     def get_file_count(self) -> int:
-        return len(
-            [f for f in self.data_dir.glob("*.txt")]
-        )  # TODO make universal for all extensions
-
-    def get_dtype(self):
-        suffixes = set([f.suffix.strip(".") for f in self.data_dir.iterdir()])
-        dtype = suffixes.difference({"yaml", "pickle"})
-        assert len(dtype) == 1  # TODO using jpg and png together
-        self.dtype = dtype
+        return len(self.get_files())
 
     def save_config(self, fp: "Path" = None):
         fp = fp or self.data_dir
@@ -44,7 +55,7 @@ class ProjectConfig:
 
     @classmethod
     def from_name(cls, name: str):
-        data_dir = PROJECT_DIR / f"{md5(name.encode()).hexdigest()}"
+        data_dir = PROJECT_DIR / f"{cls.get_id(name)}"
         return cls.from_file(file=data_dir / "config.yaml")
 
 
