@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING, List
+
+from attr import field
 from seeker.namings import PROJECT_DIR
 import yaml
 from hashlib import md5
-import pandas as pd
+from dataclasses import dataclass, field
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -12,26 +14,23 @@ TYPE_CONF = {
     "image": ["png", "jpg"],
 }
 
-# BIG_MODEL = ...
 
-# class TextModel:
+def name_to_id(name: str) -> str:
+    return md5(name.encode()).hexdigest()
 
-#     def preproc(self, objs):
-#         BIG_MODEL.predict(obj)
-#         ...
 
+@dataclass
 class ProjectConfig:
-    def __init__(self, name: str, dtype: str):
-        self.name = name.strip()
-        self.id = self.get_id(name)
-        self.dtype = dtype
+    name: str
+    dtype: str
+    id: str = field(init=False)
+    data_dir: "Path" = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.name = self.name.strip()
+        self.id = name_to_id(self.name)
         self.data_dir = PROJECT_DIR / f"{self.id}"
         self.data_dir.mkdir(exist_ok=True)
-        # self.save_config() #TODO
-
-    @staticmethod
-    def get_id(name):
-        return md5(name.encode()).hexdigest()
 
     def get_files(self) -> List["Path"]:
         files = []
@@ -51,12 +50,11 @@ class ProjectConfig:
     @classmethod
     def from_file(cls, file: "Path"):
         conf = yaml.safe_load(file.read_text())
-        return cls(name=conf["name"].strip(), dtype=conf["dtype"])
+        return cls(name=conf["name"], dtype=conf["dtype"])
 
     @classmethod
     def from_name(cls, name: str):
-        data_dir = PROJECT_DIR / f"{cls.get_id(name)}"
-        return cls.from_file(file=data_dir / "config.yaml")
+        return cls.from_file(file=PROJECT_DIR / name_to_id(name) / "config.yaml")
 
 
 def load_all_config():
