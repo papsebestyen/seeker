@@ -1,14 +1,15 @@
 import streamlit as st
 from seeker.project_config import ProjectConfig, load_all_config
+
 # from seeker.search.numeric import NumericModel #change the import to image or text model
-from seeker.search.text import TextModel #change the import to image or text model
+from seeker.search.text import TextModel  # change the import to image or text model
 
 st.set_page_config(
     page_title="Seeker",
     page_icon="👋",
 )
 
-DEBUG = True
+DEBUG = False
 DEFAULT_PROJECT = "Select project"
 
 
@@ -43,7 +44,7 @@ def sidebar_new_project():
         if uploaded_files is not None:
             for file in uploaded_files:
                 (conf.data_dir / file.name).write_bytes(file.getvalue())
-            model = NumericModel(conf=conf)
+            model = TextModel(conf=conf)
             model.extend_vectors(
                 model.preprocess_all(
                     [(model.conf.data_dir / fp.name) for fp in uploaded_files]
@@ -96,20 +97,20 @@ def sidebar_select_project():
 
 
 def content_text():
+
     st.text_area(
         label="Text to search",
         key="query_search",
-        value="10 20 50",
+        value="Keress rá valamire",
     )
 
     project_name = st.session_state["project"]
     conf = ProjectConfig.from_name(name=project_name)
-    model = TextModel(conf=conf) # Change this for image or text model
+    model = TextModel(conf=conf)  # Change this for image or text model
     result_fnames = model.search(query=st.session_state["query_search"])
 
     for fname in result_fnames:
-        with st.container():
-            st.caption(fname)
+        with st.expander(label=fname, expanded=False):
             st.text(model.read_file(model.conf.data_dir / fname))
 
 
@@ -137,6 +138,7 @@ def main():
     st.title("Seeker content")
     if st.session_state["project"] != DEFAULT_PROJECT:
         content_pages["text"]()
+
 
 if __name__ == "__main__":
     main()

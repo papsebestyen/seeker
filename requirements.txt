@@ -1,0 +1,6 @@
+pandas
+streamlit
+sklearn
+pyyaml
+gensim
+textract

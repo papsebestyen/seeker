@@ -6,22 +6,26 @@ from gensim.models.fasttext import load_facebook_model
 import textract
 from seeker.namings import DATA_DIR
 
-model = load_facebook_model((DATA_DIR/"hu.szte.w2v.fasttext.bin").as_posix())
 if TYPE_CHECKING:
     from pathlib import Path
+
+model = load_facebook_model((DATA_DIR / "hu.szte.w2v.fasttext.bin").as_posix())
+
+
+def clean_text(text: str) -> str:
+    toks = tokenize(text=text, to_lower=True)
+    return " ".join(toks)
 
 
 class TextModel(BaseModel):
     SEARCH_DIST = "cosine"
 
     @staticmethod
-    def read_file(path: "Path"):
-        doc = textract.process(path).decode("UTF-8").replace("\n", " ")
-        tokens = tokenize(doc)
-        return tokens
+    def read_file(path: "Path") -> str:
+        return textract.process(filename=path.as_posix()).decode("UTF-8")
 
     @staticmethod
     def preprocess(data: str):
-        return np.nanmean(
-            np.array([model.wv.get_vector(word) for word in data]), axis=0
-        )
+        cleaned_data = clean_text(data)
+        vec = model.wv.get_sentence_vector(cleaned_data)
+        return {str(k): v for k, v in enumerate(vec)}

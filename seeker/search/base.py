@@ -1,6 +1,6 @@
 import pickle
 from typing import TYPE_CHECKING, List
-from sklearn.neighbors import KDTree
+from sklearn.neighbors import KDTree, NearestNeighbors
 from abc import ABC, abstractstaticmethod
 import pandas as pd
 
@@ -64,13 +64,19 @@ class BaseModel(ABC):
 
     def build_tree(self):
         vectors = self.load_vectors()
-        tree = KDTree(vectors.drop(columns=[DEFAULT_INDEX]), metric=self.SEARCH_DIST)
+        tree = NearestNeighbors(
+            n_neighbors=10,
+            algorithm="auto",
+            metric=self.SEARCH_DIST,
+            leaf_size=30,
+            n_jobs=-1,
+        ).fit(vectors.drop(columns=[DEFAULT_INDEX]))
         (self.conf.data_dir / "tree.pickle").write_bytes(pickle.dumps(tree))
 
     def search(self, query):
         tree = pickle.loads((self.conf.data_dir / "tree.pickle").read_bytes())
-        ind = tree.query(
-            pd.DataFrame([self.preprocess(query)]).values, k=10, return_distance=False
+        ind = tree.kneighbors(
+            pd.DataFrame([self.preprocess(query)]), n_neighbors=3, return_distance=False
         )
         vectors = self.load_vectors(fname_only=True)
         return vectors.iloc[ind[0]][DEFAULT_INDEX].values
