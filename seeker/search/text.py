@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 from seeker.search.base import BaseModel
 from gensim.utils import tokenize
-import numpy as np
 from gensim.models.fasttext import load_facebook_model
 import textract
 from seeker.namings import DATA_DIR
