@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING, List
-
 from attr import field
 from seeker.namings import PROJECT_DIR
 import yaml
@@ -29,7 +28,9 @@ class ProjectConfig:
     def __post_init__(self) -> None:
         self.name = self.name.strip()
         self.id = name_to_id(self.name)
-        self.data_dir = PROJECT_DIR / f"{self.id}"
+        self.project_dir = PROJECT_DIR / f"{self.id}"
+        self.project_dir.mkdir(exist_ok=True)
+        self.data_dir = self.project_dir / "data"
         self.data_dir.mkdir(exist_ok=True)
 
     def get_files(self) -> List["Path"]:
@@ -38,11 +39,8 @@ class ProjectConfig:
             files.extend([f for f in self.data_dir.glob(f"*.{dtype}")])
         return files
 
-    def get_file_count(self) -> int:
-        return len(self.get_files())
-
     def save_config(self, fp: "Path" = None):
-        fp = fp or self.data_dir
+        fp = fp or self.project_dir
         (fp / "config.yaml").write_text(
             yaml.safe_dump({"name": self.name, "dtype": self.dtype})
         )
@@ -55,6 +53,12 @@ class ProjectConfig:
     @classmethod
     def from_name(cls, name: str):
         return cls.from_file(file=PROJECT_DIR / name_to_id(name) / "config.yaml")
+
+    def get_file_count(self) -> int:
+        return len(self.get_files())
+
+    def get_file_size(self) -> int:
+        return sum([f.stat().st_size for f in self.data_dir.glob("**/*")])
 
 
 def load_all_config():

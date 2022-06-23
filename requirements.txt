@@ -4,3 +4,4 @@ sklearn
 pyyaml
 gensim
 textract
+opencv-python

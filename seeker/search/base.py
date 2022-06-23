@@ -1,6 +1,6 @@
 import pickle
 from typing import TYPE_CHECKING, List
-from sklearn.neighbors import KDTree, NearestNeighbors
+from sklearn.neighbors import NearestNeighbors
 from abc import ABC, abstractstaticmethod
 import pandas as pd
 
@@ -12,6 +12,7 @@ TYPE_CONF = {
     "text": ["txt"],
     "image": ["png", "jpg"],
 }
+
 DEFAULT_INDEX = "filename"
 
 
@@ -36,7 +37,7 @@ class BaseModel(ABC):
         return files
 
     def load_vectors(self, fname_only: bool = False) -> pd.DataFrame:
-        vector_path = self.conf.data_dir / "vectors.parquet"
+        vector_path = self.conf.project_dir / "vectors.parquet"
         if vector_path.exists():
             return pd.read_parquet(
                 vector_path, columns=[DEFAULT_INDEX] if fname_only else None
@@ -51,7 +52,7 @@ class BaseModel(ABC):
 
     def extend_vectors(self, new_vectors) -> pd.DataFrame:
         vectors = pd.concat([self.load_vectors(), new_vectors])
-        vectors.to_parquet(self.conf.data_dir / "vectors.parquet")
+        vectors.to_parquet(self.conf.project_dir / "vectors.parquet")
         return vectors
 
     def preprocess_all(self, path_list: List["Path"]) -> pd.DataFrame:
@@ -71,10 +72,10 @@ class BaseModel(ABC):
             leaf_size=30,
             n_jobs=-1,
         ).fit(vectors.drop(columns=[DEFAULT_INDEX]))
-        (self.conf.data_dir / "tree.pickle").write_bytes(pickle.dumps(tree))
+        (self.conf.project_dir / "tree.pickle").write_bytes(pickle.dumps(tree))
 
     def search(self, query):
-        tree = pickle.loads((self.conf.data_dir / "tree.pickle").read_bytes())
+        tree = pickle.loads((self.conf.project_dir / "tree.pickle").read_bytes())
         ind = tree.kneighbors(
             pd.DataFrame([self.preprocess(query)]), n_neighbors=3, return_distance=False
         )
