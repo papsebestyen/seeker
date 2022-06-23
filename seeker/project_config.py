@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 TYPE_CONF = {
-    "text": ["txt"],
+    "text": ["txt", "docx"],
     "image": ["png", "jpg"],
 }
 

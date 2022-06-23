@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 DEFAULT_PROJECT = ProjectConfig(name="Select project", dtype="text")
 
-DEFAULT_TEXT_SEARCH = "Keress rá valamire"
+DEFAULT_TEXT_SEARCH = ""
 DEFAULT_IMAGE_SEARCH = "#FFFFFF"
 MODEL_MAPPING = {"text": TextModel, "image": ImageModel}
 
@@ -26,6 +26,7 @@ class AppState:
     new = "new_project"
     modify = "modify_project"
     select = "select_project"
+    show = "show_project"
 
 
 DEFAULT_SESSION = {

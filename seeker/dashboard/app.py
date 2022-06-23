@@ -17,7 +17,9 @@ from seeker.dashboard.sidebar import (
     sidebar_modify_project,
     sidebar_new_project,
     sidebar_select_project,
+    sidebar_show_project,
 )
+import numpy as np
 
 DEBUG = False
 
@@ -57,7 +59,7 @@ def content_text():
         on_change=callback,
     )
 
-    if SESSION.search is not None:
+    if isinstance(SESSION.search, str) and SESSION.search.strip() != "":
         st.header("Search results")
 
         result_fnames = model.search(query=SESSION.search)
@@ -100,7 +102,7 @@ def content_image():
         on_change=callback,
     )
 
-    if SESSION.search is not None:
+    if isinstance(SESSION.search, (np.ndarray, np.generic)):
         st.header("Search results")
         result_fnames = model.search(query=SESSION.search)
         for fname in result_fnames:
@@ -113,6 +115,7 @@ def main():
         AppState.new: sidebar_new_project,
         AppState.modify: sidebar_modify_project,
         AppState.select: sidebar_select_project,
+        AppState.show: sidebar_show_project,
     }
     content_pages = {"text": content_text, "image": content_image}
 
@@ -120,8 +123,6 @@ def main():
         sidebar_pages[SESSION.app_state]()
 
     if DEBUG:
-        # "app_state: ", SESSION.app_state
-        # "config: ", SESSION.config
         "session", SESSION
 
     st.title("Seeker content")
