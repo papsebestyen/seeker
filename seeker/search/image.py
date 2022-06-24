@@ -1,8 +1,8 @@
+from typing import TYPE_CHECKING
+
 import cv2
 import numpy as np
-import pandas as pd
 
-from typing import TYPE_CHECKING
 from seeker.search.base import BaseModel
 
 if TYPE_CHECKING:
@@ -12,7 +12,7 @@ file_exts = ["jpg", "jpeg", "JPG", "png"]
 
 
 def dominant_colors(img):
-    
+
     pixels = np.float32(img.reshape(-1, 3))
     pixels = pixels[np.random.choice(pixels.shape[0], 100_000), :]
 
@@ -24,17 +24,18 @@ def dominant_colors(img):
     _, counts = np.unique(labels, return_counts=True)
 
     cluster_list = []
-    [cluster_list.append(clusters) for clusters in zip(palette, counts / counts.sum() * 100)]
-    
+    [
+        cluster_list.append(clusters)
+        for clusters in zip(palette, counts / counts.sum() * 100)
+    ]
+
     a = [
         ([row for row in cluster_list[i][0]], cluster_list[i][1].reshape(1, -1))
         for i in range(len(cluster_list))
     ]
-    
-    a = [
-        np.append(a[i][0][0:3], a[i][1][0][0]) for i in range(len(a))
-    ]
-    
+
+    a = [np.append(a[i][0][0:3], a[i][1][0][0]) for i in range(len(a))]
+
     return a
 
 

@@ -1,11 +1,13 @@
 import pickle
-from typing import TYPE_CHECKING, List
-from sklearn.neighbors import NearestNeighbors
 from abc import ABC, abstractstaticmethod
+from typing import TYPE_CHECKING, List
+
 import pandas as pd
+from sklearn.neighbors import NearestNeighbors
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from seeker.project_config import ProjectConfig
 
 TYPE_CONF = {

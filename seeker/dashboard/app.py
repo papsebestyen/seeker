@@ -1,25 +1,25 @@
-from typing import TYPE_CHECKING
-from PIL import Image
-import streamlit as st
-from seeker.dashboard.naming import (
-    SearchNames,
-    AppState,
-    DEFAULT_TEXT_SEARCH,
-    DEFAULT_IMAGE_SEARCH,
-    DEFAULT_PROJECT,
-    MODEL_MAPPING,
-    SESSION,
-)
-
 import tempfile
 from pathlib import Path
+
+import numpy as np
+import streamlit as st
+from PIL import Image
+
+from seeker.dashboard.naming import (
+    DEFAULT_IMAGE_SEARCH,
+    DEFAULT_PROJECT,
+    DEFAULT_TEXT_SEARCH,
+    MODEL_MAPPING,
+    SESSION,
+    AppState,
+    SearchNames,
+)
 from seeker.dashboard.sidebar import (
     sidebar_modify_project,
     sidebar_new_project,
     sidebar_select_project,
     sidebar_show_project,
 )
-import numpy as np
 
 DEBUG = False
 

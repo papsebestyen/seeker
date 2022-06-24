@@ -1,6 +1,8 @@
 from shutil import rmtree
+
 import streamlit as st
-from seeker.dashboard.naming import DEFAULT_PROJECT, AppState, MODEL_MAPPING, SESSION
+
+from seeker.dashboard.naming import DEFAULT_PROJECT, MODEL_MAPPING, SESSION, AppState
 from seeker.project_config import ProjectConfig, load_all_config
 
 

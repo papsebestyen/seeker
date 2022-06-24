@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, List
-from attr import field
-from seeker.namings import PROJECT_DIR
-import yaml
-from hashlib import md5
 from dataclasses import dataclass, field
+from hashlib import md5
+from typing import TYPE_CHECKING, List
+
+import yaml
+
+from seeker.namings import PROJECT_DIR
 
 if TYPE_CHECKING:
     from pathlib import Path

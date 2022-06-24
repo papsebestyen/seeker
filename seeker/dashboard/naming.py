@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
-from seeker.project_config import ProjectConfig
-from seeker.search.text import TextModel
-from seeker.search.image import ImageModel
+from typing import Any
+
 import streamlit as st
 
-if TYPE_CHECKING:
-    from seeker.search.base import BaseModel
+from seeker.project_config import ProjectConfig
+from seeker.search.image import ImageModel
+from seeker.search.text import TextModel
 
 DEFAULT_PROJECT = ProjectConfig(name="Select project", dtype="text")
 

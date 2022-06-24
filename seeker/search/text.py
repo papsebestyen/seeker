@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING
-from seeker.search.base import BaseModel
-from gensim.utils import tokenize
-from gensim.models.fasttext import load_facebook_model
+
 import textract
+from gensim.models.fasttext import load_facebook_model
+from gensim.utils import tokenize
+
 from seeker.namings import DATA_DIR
+from seeker.search.base import BaseModel
 
 if TYPE_CHECKING:
     from pathlib import Path
