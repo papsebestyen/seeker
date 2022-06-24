@@ -1,31 +1,32 @@
-from typing import TYPE_CHECKING
-from PIL import Image
-import streamlit as st
-from seeker.dashboard.naming import (
-    SearchNames,
-    AppState,
-    DEFAULT_TEXT_SEARCH,
-    DEFAULT_IMAGE_SEARCH,
-    DEFAULT_PROJECT,
-    MODEL_MAPPING,
-    SESSION,
-)
-
 import tempfile
 from pathlib import Path
+
+import numpy as np
+import streamlit as st
+from PIL import Image
+
+from seeker.dashboard.naming import (
+    DEFAULT_IMAGE_SEARCH,
+    DEFAULT_PROJECT,
+    DEFAULT_TEXT_SEARCH,
+    MODEL_MAPPING,
+    SESSION,
+    AppState,
+    SearchNames,
+)
 from seeker.dashboard.sidebar import (
     sidebar_modify_project,
     sidebar_new_project,
     sidebar_select_project,
     sidebar_show_project,
 )
-import numpy as np
+from seeker.namings import TYPE_CONF
 
 DEBUG = False
 
 st.set_page_config(
     page_title="Seeker",
-    page_icon="👋",
+    page_icon="👋",  # TODO
 )
 
 
@@ -53,7 +54,7 @@ def content_text():
 
     st.file_uploader(
         label="Document to search",
-        type=None,
+        type=TYPE_CONF["text"],
         accept_multiple_files=False,
         key=SearchNames.document,
         on_change=callback,
@@ -96,7 +97,7 @@ def content_image():
 
     st.file_uploader(
         label="Image to search",
-        type=None,
+        type=TYPE_CONF["image"],
         accept_multiple_files=False,
         key=SearchNames.image,
         on_change=callback,
@@ -125,9 +126,11 @@ def main():
     if DEBUG:
         "session", SESSION
 
-    st.title("Seeker content")
+    st.title("Seeker")
     if SESSION.config.name != DEFAULT_PROJECT.name:
         content_pages[SESSION.config.dtype]()
+    else:
+        st.markdown(Path("description.md").read_text())
 
 
 if __name__ == "__main__":

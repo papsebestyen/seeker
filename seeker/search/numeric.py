@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from seeker.search.base import BaseModel
 
 if TYPE_CHECKING:
