@@ -8,26 +8,34 @@ from seeker.search.base import BaseModel
 if TYPE_CHECKING:
     from pathlib import Path
 
-df = pd.DataFrame(columns=["R", "G", "B", "pc"])
 file_exts = ["jpg", "jpeg", "JPG", "png"]
 
 
-def dominant_color(img):
+def dominant_colors(img):
+    
     pixels = np.float32(img.reshape(-1, 3))
     pixels = pixels[np.random.choice(pixels.shape[0], 100_000), :]
-    n_colors = 5
+
+    n_colors = 6
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, 0.1)
     flags = cv2.KMEANS_RANDOM_CENTERS
-    _, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 5, flags)
+
+    _, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
     _, counts = np.unique(labels, return_counts=True)
-    dominant = palette[np.argmax(counts)]
-    return dominant
-    # data = pd.DataFrame(
-    #     np.append(dominant.tolist(), np.max(counts) / sum(counts)).reshape(1, -1),
-    #     index=[str(str(img).split("/")[1])],
-    #     columns=data.columns,
-    # )
-    # return data
+
+    cluster_list = []
+    [cluster_list.append(clusters) for clusters in zip(palette, counts / counts.sum() * 100)]
+    
+    a = [
+        ([row for row in cluster_list[i][0]], cluster_list[i][1].reshape(1, -1))
+        for i in range(len(cluster_list))
+    ]
+    
+    a = [
+        np.append(a[i][0][0:3], a[i][1][0][0]) for i in range(len(a))
+    ]
+    
+    return a
 
 
 class ImageModel(BaseModel):
@@ -39,8 +47,8 @@ class ImageModel(BaseModel):
 
     @staticmethod
     def preprocess(data: str):
-        dom_color = dominant_color(data)
-        return {str(k): v for k, v in enumerate(dom_color)}
+        dom_colors = dominant_colors(data)
+        return [{str(k): v for k, v in enumerate(i)} for i in dom_colors]
 
     @staticmethod
     def rgb_hex_to_dec(rgb_hex: str) -> np.array:
