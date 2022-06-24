@@ -23,20 +23,10 @@ def dominant_colors(img):
     _, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
     _, counts = np.unique(labels, return_counts=True)
 
-    cluster_list = []
-    [
-        cluster_list.append(clusters)
-        for clusters in zip(palette, counts / counts.sum() * 100)
+    return [
+        {"r": color[0], "g": color[1], "b": color[2], "freq": freq}
+        for color, freq in zip(palette, counts / counts.sum() * 100)
     ]
-
-    a = [
-        ([row for row in cluster_list[i][0]], cluster_list[i][1].reshape(1, -1))
-        for i in range(len(cluster_list))
-    ]
-
-    a = [np.append(a[i][0][0:3], a[i][1][0][0]) for i in range(len(a))]
-
-    return a
 
 
 class ImageModel(BaseModel):
@@ -48,8 +38,7 @@ class ImageModel(BaseModel):
 
     @staticmethod
     def preprocess(data: str):
-        dom_colors = dominant_colors(data)
-        return [{str(k): v for k, v in enumerate(i)} for i in dom_colors]
+        return dominant_colors(data)
 
     @staticmethod
     def rgb_hex_to_dec(rgb_hex: str) -> np.array:

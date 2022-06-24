@@ -21,11 +21,11 @@ from seeker.dashboard.sidebar import (
     sidebar_show_project,
 )
 
-DEBUG = False
+DEBUG = True
 
 st.set_page_config(
     page_title="Seeker",
-    page_icon="👋",
+    page_icon="👋",  # TODO
 )
 
 

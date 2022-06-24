@@ -29,7 +29,7 @@ class BaseModel(ABC):
         pass
 
     @abstractstaticmethod
-    def preprocess(data) -> dict:
+    def preprocess(data) -> List[dict]:
         pass
 
     def get_files(self) -> List["Path"]:
@@ -60,13 +60,16 @@ class BaseModel(ABC):
     def preprocess_all(self, path_list: List["Path"]) -> pd.DataFrame:
         new_vectors = []
         for fp in path_list:
-            new_vectors.append(
-                {"filename": fp.name, **self.preprocess(self.read_file(fp))}
+            new_vectors.extend(
+                [
+                    {"filename": fp.name, **comp}
+                    for comp in self.preprocess(self.read_file(fp))
+                ]
             )
         return pd.DataFrame(new_vectors)
 
-    def build_tree(self):
-        vectors = self.load_vectors()
+    def build_tree(self, vectors=None):
+        vectors = vectors if vectors is not None else self.load_vectors()
         tree = NearestNeighbors(
             n_neighbors=10,
             algorithm="auto",
@@ -78,8 +81,9 @@ class BaseModel(ABC):
 
     def search(self, query):
         tree = pickle.loads((self.conf.project_dir / "tree.pickle").read_bytes())
+        to_search = max(self.preprocess(query), key=lambda x: x["freq"])
         ind = tree.kneighbors(
-            pd.DataFrame([self.preprocess(query)]), n_neighbors=3, return_distance=False
+            pd.DataFrame([to_search]), n_neighbors=3, return_distance=False
         )
         vectors = self.load_vectors(fname_only=True)
         return vectors.iloc[ind[0]][DEFAULT_INDEX].values
