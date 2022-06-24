@@ -34,10 +34,12 @@ class ProjectConfig:
         self.data_dir = self.project_dir / "data"
         self.data_dir.mkdir(exist_ok=True)
 
-    def get_files(self) -> List["Path"]:
+    def get_files(self, name_only: bool = False) -> List["Path"]:
         files = []
         for dtype in TYPE_CONF[self.dtype]:
-            files.extend([f for f in self.data_dir.glob(f"*.{dtype}")])
+            files.extend(
+                [f.name if name_only else f for f in self.data_dir.glob(f"*.{dtype}")]
+            )
         return files
 
     def save_config(self, fp: "Path" = None):

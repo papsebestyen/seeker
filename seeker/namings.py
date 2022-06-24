@@ -5,3 +5,8 @@ PROJECT_DIR = DATA_DIR / "projects"
 
 DATA_DIR.mkdir(exist_ok=True)
 PROJECT_DIR.mkdir(exist_ok=True)
+
+TYPE_CONF = {
+    "text": ["txt", "docx"],
+    "image": ["png", "jpg"],
+}

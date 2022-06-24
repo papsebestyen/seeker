@@ -3,6 +3,7 @@ from shutil import rmtree
 import streamlit as st
 
 from seeker.dashboard.naming import DEFAULT_PROJECT, MODEL_MAPPING, SESSION, AppState
+from seeker.namings import TYPE_CONF
 from seeker.project_config import ProjectConfig, load_all_config
 
 
@@ -73,11 +74,15 @@ def sidebar_show_project():
     st.button(label="New project", on_click=callback)
 
 
-def update_project(conf: ProjectConfig, filenames):
-    model = MODEL_MAPPING[SESSION.config.dtype](conf=SESSION.config)
-    model.extend_vectors(
-        model.preprocess_all([(model.conf.data_dir / fp.name) for fp in filenames])
-    )
+def update_project(conf: ProjectConfig, uploaded_files):
+    old_files = conf.get_files(name_only=True)
+    new_files = set()
+    for file in uploaded_files:
+        if file.name not in old_files:
+            (SESSION.config.data_dir / file.name).write_bytes(file.getvalue())
+            new_files.add(conf.data_dir / file.name)
+    model = MODEL_MAPPING[SESSION.config.dtype](conf=conf)
+    model.extend_vectors(model.preprocess_all(new_files))
     model.build_tree()
 
 
@@ -94,7 +99,7 @@ def sidebar_new_project():
     st.file_uploader(
         label="Files",
         key="file_uploader",
-        # type=TYPE_CONF[project_type],
+        type=TYPE_CONF[st.session_state["project_type"]],
         accept_multiple_files=True,
     )
 
@@ -108,10 +113,7 @@ def sidebar_new_project():
 
             uploaded_files = st.session_state["file_uploader"]
             if uploaded_files:
-                for file in uploaded_files:
-                    (SESSION.config.data_dir / file.name).write_bytes(file.getvalue())
-                update_project(conf=SESSION.config, filenames=uploaded_files)
-
+                update_project(SESSION.config, uploaded_files=uploaded_files)
                 SESSION.app_state = AppState.show
 
     st.button("Submit", on_click=callback)
@@ -137,11 +139,7 @@ def sidebar_modify_project():
     def callback():
         uploaded_files = st.session_state["file_uploader"]
         if uploaded_files:
-
-            for file in uploaded_files:
-                (SESSION.config.data_dir / file.name).write_bytes(file.getvalue())
-            update_project(SESSION.config, uploaded_files)
-
+            update_project(SESSION.config, uploaded_files=uploaded_files)
             SESSION.app_state = AppState.show
 
     st.button("Submit", on_click=callback)

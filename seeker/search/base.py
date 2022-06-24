@@ -5,15 +5,12 @@ from typing import TYPE_CHECKING, List
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 
+from seeker.namings import TYPE_CONF
+
 if TYPE_CHECKING:
     from pathlib import Path
 
     from seeker.project_config import ProjectConfig
-
-TYPE_CONF = {
-    "text": ["txt"],
-    "image": ["png", "jpg"],
-}
 
 DEFAULT_INDEX = "filename"
 
@@ -83,7 +80,13 @@ class BaseModel(ABC):
         tree = pickle.loads((self.conf.project_dir / "tree.pickle").read_bytes())
         to_search = max(self.preprocess(query), key=lambda x: x["freq"])
         ind = tree.kneighbors(
-            pd.DataFrame([to_search]), n_neighbors=3, return_distance=False
+            pd.DataFrame([to_search]), n_neighbors=6 * 3 + 1, return_distance=False
         )
+        results = []
+        restults_i = 0
+        while len(results) < 3:
+            if ind[0][restults_i] not in results:
+                results.append(ind[0][restults_i])
+            restults_i += 1
         vectors = self.load_vectors(fname_only=True)
-        return vectors.iloc[ind[0]][DEFAULT_INDEX].values
+        return vectors.iloc[results][DEFAULT_INDEX].values

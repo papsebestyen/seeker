@@ -20,8 +20,9 @@ from seeker.dashboard.sidebar import (
     sidebar_select_project,
     sidebar_show_project,
 )
+from seeker.namings import TYPE_CONF
 
-DEBUG = True
+DEBUG = False
 
 st.set_page_config(
     page_title="Seeker",
@@ -53,7 +54,7 @@ def content_text():
 
     st.file_uploader(
         label="Document to search",
-        type=None,
+        type=TYPE_CONF["text"],
         accept_multiple_files=False,
         key=SearchNames.document,
         on_change=callback,
@@ -96,7 +97,7 @@ def content_image():
 
     st.file_uploader(
         label="Image to search",
-        type=None,
+        type=TYPE_CONF["image"],
         accept_multiple_files=False,
         key=SearchNames.image,
         on_change=callback,
@@ -125,9 +126,11 @@ def main():
     if DEBUG:
         "session", SESSION
 
-    st.title("Seeker content")
+    st.title("Seeker")
     if SESSION.config.name != DEFAULT_PROJECT.name:
         content_pages[SESSION.config.dtype]()
+    else:
+        st.markdown(Path("description.md").read_text())
 
 
 if __name__ == "__main__":

@@ -12,6 +12,8 @@ file_exts = ["jpg", "jpeg", "JPG", "png"]
 
 
 def dominant_colors(img):
+    cv2.setRNGSeed(0)
+    np.random.seed(0)
 
     pixels = np.float32(img.reshape(-1, 3))
     pixels = pixels[np.random.choice(pixels.shape[0], 100_000), :]
