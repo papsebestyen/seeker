@@ -132,7 +132,7 @@ def sidebar_modify_project():
     st.file_uploader(
         label="Files",
         key="file_uploader",
-        # type=TYPE_CONF[project_type],
+        type=TYPE_CONF[SESSION.config.dtype],
         accept_multiple_files=True,
     )
 
